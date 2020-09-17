@@ -13,13 +13,6 @@ function Square(props) {
 
 // 盤面
 class Board extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      squares: Array(9).fill(null), // 要素数9の配列を作成、各要素をnullにする
-      xIsNext: true, // どちらのプレイヤーの手番なのかを判定する際に使う真偽値
-    };
-  }
 
   handleClick(i) {
     const squares = this.state.squares.slice(); // slice();と引数を指定しないことで、配列全体を切り出す。
@@ -38,21 +31,13 @@ class Board extends React.Component {
   renderSquare(i) {
     return (
       <Square
-        value={this.state.squares[i]}
-        onClick={() => this.handleClick(i)}
+        value={this.props.squares[i]}
+        onClick={() => this.props.handleClick(i)}
       />
     );
   }
 
   render() {
-    const winner = calculateWinner(this.state.squares);
-    let status;
-    if (winner) {
-      status = ' Winner: ' + winner;
-    } else {
-      status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
-    }
-
     return (
       <div>
         <div className="status">{status}</div>
@@ -78,14 +63,35 @@ class Board extends React.Component {
 
 // 三目並べ全体
 class Game extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      history: [{
+        suquares: Array(9).fill(null), // 要素数9の配列を作成、各要素をnullにする
+      }],
+      xIsNext: true, // どちらのプレイヤーの手番なのかを判定する際に使う真偽値
+    };
+  }
   render() {
+    const history = this.state.history;
+    const current = history[history.length - 1];
+    const winner = calculateWinner(current.squares);
+    let status;
+    if (winner) {
+      status = 'Winner: ' + winner;
+    } else {
+      status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
+    }
     return (
       <div className="game">
         <div className="game-board">
-          <Board />
+          <Board 
+            squares={current.suquares}
+            onClick={() => this.handleClick(i)}
+          />
         </div>
         <div className="game-info">
-          <div>{/* status */}</div>
+          <div>{status}</div>
           <ol>{/* TODO */}</ol>
         </div>
       </div>
