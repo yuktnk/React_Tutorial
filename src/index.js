@@ -14,20 +14,6 @@ function Square(props) {
 // 盤面
 class Board extends React.Component {
 
-  handleClick(i) {
-    const squares = this.state.squares.slice(); // slice();と引数を指定しないことで、配列全体を切り出す。
-    
-    if (calculateWinner(squares) || squares[i]) {
-      return; // ゲームの決着が既についている場合やクリックされたマス目が既に埋まっている場合に早期に return する
-    }
-    
-    squares[i] = this.state.xIsNext ? 'X' : 'O';
-    this.setState({
-      squares: squares,
-      xIsNext: !this.state.xIsNext,
-    })
-  }
-
   renderSquare(i) {
     return (
       <Square
@@ -40,7 +26,6 @@ class Board extends React.Component {
   render() {
     return (
       <div>
-        <div className="status">{status}</div>
         <div className="board-row">
           {this.renderSquare(0)}
           {this.renderSquare(1)}
@@ -72,10 +57,30 @@ class Game extends React.Component {
       xIsNext: true, // どちらのプレイヤーの手番なのかを判定する際に使う真偽値
     };
   }
+
+  handleClick(i) {
+    const history = this.state.history;
+    const current = history[history.length - 1];
+    const squares = current.squares.slice(); // slice();と引数を指定しないことで、配列全体を切り出す。
+    
+    if (calculateWinner(squares) || squares[i]) {
+      return; // ゲームの決着が既についている場合やクリックされたマス目が既に埋まっている場合に早期に return する
+    }
+
+    squares[i] = this.state.xIsNext ? 'X' : 'O';
+    this.setState({
+      history: history.concat([{ // push() メソッドの方に慣れているかもしれませんが、それと違って、
+        squares: squares,        // concat() は元の配列をミューテートしないため、こちらを利用します
+      }]),
+      xIsNext: !this.state.xIsNext,
+    })
+  }
+
   render() {
     const history = this.state.history;
     const current = history[history.length - 1];
     const winner = calculateWinner(current.squares);
+
     let status;
     if (winner) {
       status = 'Winner: ' + winner;
@@ -87,7 +92,7 @@ class Game extends React.Component {
         <div className="game-board">
           <Board 
             squares={current.suquares}
-            onClick={() => this.handleClick(i)}
+            onClick={(i) => this.handleClick(i)}
           />
         </div>
         <div className="game-info">
