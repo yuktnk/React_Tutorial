@@ -54,11 +54,12 @@ class Game extends React.Component {
         squares: Array(9).fill(null), // 要素数9の配列を作成、各要素をnullにする
       }],
       xIsNext: true, // どちらのプレイヤーの手番なのかを判定する際に使う真偽値
+      stepNumber: 0,
     };
   }
 
   handleClick(i) {
-    const history = this.state.history;
+    const history = this.state.history.slice(0, this.state.stepNumber + 1)
     const current = history[history.length - 1];
     const squares = current.squares.slice(); // slice();と引数を指定しないことで、配列全体を切り出す。
 
@@ -71,19 +72,27 @@ class Game extends React.Component {
       history: history.concat([{ // push() メソッドの方に慣れているかもしれませんが、それと違って、
         squares: squares,        // concat() は元の配列をミューテートしないため、こちらを利用します
       }]),
+      stepNumber: history.length,
       xIsNext: !this.state.xIsNext,
+    })
+  }
+
+  jumpTo(step) {
+    this.setState ({
+      stepNumber: step,
+      xIsNext: (step % 2) === 0,
     })
   }
 
   render() {
     const history = this.state.history;
-    const current = history[history.length - 1];
+    const current = history[this.state.stepNumber];
     const winner = calculateWinner(current.squares);
 
     const moves = history.map((step, move) => {
       const desc = move ? 'Go to move #' + move : 'Go to game start';
       return (
-        <li>
+        <li key={move}>
           <button onClick={() => this.jumpTo(move)}>{desc}</button>
         </li>
       );
