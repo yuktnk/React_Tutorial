@@ -3,29 +3,37 @@ import ReactDOM from 'react-dom';
 import './index.css'
 
 // 正方形のマス目
-class Square extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      value: null,
-    };
-  }
-  render() {
-    return (
-      <button 
-      className="square" 
-      onClick={() => this.setState({value: 'X'})}
-      >
-        {this.state.value}
-      </button>
-    );
-  }
+function Square(props) {
+  return (
+    <button className="square" onClick={props.onClick}>
+      {props.value}
+    </button>
+  );
 }
 
 // 盤面
 class Board extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      squares: Array(9).fill(null), // 要素数9の配列を作成、各要素をnullにする
+      
+    };
+  }
+
+  handleClick(i) {
+    const squares = this.state.squares.slice(); // slice();と引数を指定しないことで、配列全体を切り出す。
+    squares[i] = 'X';
+    this.setState({squares: squares})
+  }
+
   renderSquare(i) {
-    return <Square value={i}/>;
+    return (
+      <Square
+        value={this.state.squares[i]}
+        onClick={() => this.handleClick(i)}
+      />
+    );
   }
 
   render() {
